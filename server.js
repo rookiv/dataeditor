@@ -66,13 +66,25 @@ function readFiles(objPath) {
 	readDir(objPath, function(err, files) {
 		for (var a in files) {
 			if (files[a].endsWith("_firing.dbx") || files[a].endsWith("_Firing.dbx")) {
-				var filename = files[a];
-				loading = "Converting " + filename;
+				loading = "Converting " + files[a];
 				var dbxToXml = spawn(pythonPath, [dbxPath, files[a]]);
 				i++;
 
-				dbxToXml.stdout.on("data", function(data) {
-					console.log("Output: " + data);
+				dbxToXml.stdout.on("data", function(path) {
+					i--;
+					var fs = require('fs');
+					var parseString = require('xml2js').parseString;
+					fs.readFile(path.toString().substring(0, path.toString().length - 5) + "xml", function(err, data) {
+						parseString(data, {
+							trim : true,
+							explicitArray : false,
+							charkey : "value",
+							mergeAttrs : true
+						}, function(err, result) {
+							// console.log(err);
+							console.log(JSON.stringify(result));
+						});
+					});
 				});
 
 				dbxToXml.stderr.on("data", function(data) {
@@ -80,21 +92,6 @@ function readFiles(objPath) {
 				});
 
 				dbxToXml.on("close", function(code) {
-					i--;
-					var fs = require('fs');
-					var parseString = require('xml2js').parseString;
-					fs.readFile(filename.substring(0, filename.length - 3) + "xml", function(err, data) {
-						console.log(err + "");
-						parseString(data, {
-							trim : true,
-							explicitArray: false,
-							charkey: "value",
-							mergeAttrs: true
-						}, function(err, result) {
-							console.log(JSON.stringify(result));
-							//console.log(result.partition.instance[0]);
-						});
-					});
 				});
 			}
 		}
@@ -107,6 +104,10 @@ function readFiles(objPath) {
 			loading = "Conversion complete!";
 		}
 	}, 1000);
+}
+
+function reformatJson(json) {
+	
 }
 
 // Recursively read all files in the directory
