@@ -10,6 +10,9 @@ var archivePath = __dirname + "/scripts/archive.py";
 var objectsPath = __dirname + "/../dist/linux/levels/mp_common/level-00 FbRB";
 var weaponPath = objectsPath + "/Objects/Weapons/Handheld";
 
+// working holder
+var working = 0;
+
 var spawn = require("child_process").spawn;
 var express = require("express");
 var app = express();
@@ -62,42 +65,52 @@ function extract() {
 
 // Convert the dbx files to xml files
 function readFiles(objPath) {
-	var i = 0;
+	working = 0;
 	readDir(objPath, function(err, files) {
 		for (var a in files) {
 			if (files[a].endsWith("_firing.dbx") || files[a].endsWith("_Firing.dbx")) {
 				loading = "Converting " + files[a];
-				var dbxToXml = spawn(pythonPath, [dbxPath, files[a]]);
-				i++;
-
-				dbxToXml.stdout.on("data", function(path) {
-					i--;
-					var fs = require('fs');
-					var parseString = require('xml2js').parseString;
-					fs.readFile(path.toString().substring(0, path.toString().length - 5) + "xml", function(err, data) {
-						xmlToJson(data, function(result) {
-
-						});
-					});
-				});
-
-				dbxToXml.stderr.on("data", function(data) {
-					console.log("Error: " + data);
-				});
-
-				dbxToXml.on("close", function(code) {
-				});
+				dbxConvert(files[a]);
+				working++;
 			}
 		}
+	});
+}
+
+function dbxConvert(dbxFile) {
+	var dbxToXml = spawn(pythonPath, [dbxPath, dbxFile]);
+	working++;
+
+	dbxToXml.stdout.on("data", function(path) {
+		working--;
+		var fs = require('fs');
+		var parseString = require('xml2js').parseString;
+		var filename = path.toString().substring(0, path.toString().length - 5) + "xml";
+		fs.readFile(filename, function(err, data) {
+			xmlToJson(data, function(result) {
+				fs.writeFile(filename, result);
+			});
+		});
+	});
+
+	dbxToXml.stderr.on("data", function(data) {
+		console.log("Error: " + data);
+	});
+
+	dbxToXml.on("close", function(code) {
 	});
 
 	// Check if it's over
 	var check = setInterval(function() {
-		if (i == 0) {
+		if (working == 0) {
 			clearInterval(check);
 			loading = "Conversion complete!";
 		}
 	}, 1000);
+}
+
+function xmlConvert(xmlFile) {
+	var fs = require('fs');
 }
 
 function xmlToJson(xml, callback) {
@@ -105,21 +118,23 @@ function xmlToJson(xml, callback) {
 	var doc = libxmljs.parseXml(xml);
 	var support = require("./scripts/support.js");
 	var path = ["FiringFunctionData", "FireLogic", "Recoil", "RecoilFollowsDispersion"];
+	doc.get(objectToXpath(path, support)).text(true);
 	console.log(doc.get(objectToXpath(path, support)).text());
+	callback(doc.toString());
 }
 
 function objectToXpath(obj, path) {
 	var currentPath = path.xpath;
-	
+
 	// partition
 	var xpath = currentPath.path;
-	
+
 	// loop until almost end
 	for (var i = 0; i < obj.length - 1; i++) {
 		currentPath = currentPath[obj[i]];
 		xpath += currentPath.path;
 	}
-	
+
 	// last element
 	xpath += currentPath[obj[obj.length - 1]];
 	return xpath;
