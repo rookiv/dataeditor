@@ -1,4 +1,4 @@
-// Modules required: child_process, ejs, express, xml2js
+// Modules required: child_process, ejs, express, libxmljs
 
 // Where did you install python to?
 var pythonPath = "C:/Python27/python.exe";
@@ -107,6 +107,11 @@ function readFiles(objPath) {
 }
 
 function reformatJson(json) {
+	
+}
+
+function xmlToJson(xml) {
+	xml = xml.trim();
 	
 }
 
