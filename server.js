@@ -75,14 +75,8 @@ function readFiles(objPath) {
 					var fs = require('fs');
 					var parseString = require('xml2js').parseString;
 					fs.readFile(path.toString().substring(0, path.toString().length - 5) + "xml", function(err, data) {
-						parseString(data, {
-							trim : true,
-							explicitArray : false,
-							charkey : "value",
-							mergeAttrs : true
-						}, function(err, result) {
-							// console.log(err);
-							console.log(JSON.stringify(result));
+						xmlToJson(data, function(result) {
+
 						});
 					});
 				});
@@ -106,13 +100,29 @@ function readFiles(objPath) {
 	}, 1000);
 }
 
-function reformatJson(json) {
-	
+function xmlToJson(xml, callback) {
+	var libxmljs = require("libxmljs");
+	var doc = libxmljs.parseXml(xml);
+	var support = require("./scripts/support.js");
+	var path = ["FiringFunctionData", "FireLogic", "Recoil", "RecoilFollowsDispersion"];
+	console.log(doc.get(objectToXpath(path, support)).text());
 }
 
-function xmlToJson(xml) {
-	xml = xml.trim();
+function objectToXpath(obj, path) {
+	var currentPath = path.xpath;
 	
+	// partition
+	var xpath = currentPath.path;
+	
+	// loop until almost end
+	for (var i = 0; i < obj.length - 1; i++) {
+		currentPath = currentPath[obj[i]];
+		xpath += currentPath.path;
+	}
+	
+	// last element
+	xpath += currentPath[obj[obj.length - 1]];
+	return xpath;
 }
 
 // Recursively read all files in the directory
