@@ -6,7 +6,7 @@ var opts = {
 	corners : 1, // Corner roundness (0..1)
 	rotate : 0, // The rotation offset
 	direction : 1, // 1: clockwise, -1: counterclockwise
-	color : '#fff', // #rgb or #rrggbb or array of colors
+	color : '#000', // #rgb or #rrggbb or array of colors
 	speed : 0.5, // Rounds per second
 	trail : 10, // Afterglow percentage
 	shadow : false, // Whether to render a shadow
@@ -29,8 +29,9 @@ $(function() {
 function getStatus() {
 	$.get("/ready", function(data) {
 		$(".status").html(data);
-		if (data == "Loaded!") {
-			checkStatus.clearInterval();
+		if (data == "Conversion complete!") {
+			clearInterval(checkStatus);
+			window.location = "editor.html";
 		}
 	});
 }

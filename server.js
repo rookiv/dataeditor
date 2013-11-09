@@ -38,6 +38,14 @@ app.get("/ready", function(req, res) {
 	res.end(loading);
 });
 
+app.get("/index.html", function(req, res) {
+	res.render("index.html");
+});
+
+app.get("/editor.html", function(req, res) {
+	res.render("editor.html");
+});
+
 app.listen(8888);
 
 // Start the unarchiver
@@ -79,7 +87,6 @@ function readFiles(objPath) {
 
 function dbxConvert(dbxFile) {
 	var dbxToXml = spawn(pythonPath, [dbxPath, dbxFile]);
-	working++;
 
 	dbxToXml.stdout.on("data", function(path) {
 		working--;
