@@ -11,7 +11,8 @@ var objectsPath = __dirname + "/../dist/linux/levels/mp_common/level-00 FbRB";
 var weaponPath = objectsPath + "/Objects/Weapons/Handheld";
 
 // working holder
-var working = 0;
+var reading = 0;
+var writing = 0;
 
 var spawn = require("child_process").spawn;
 var express = require("express");
@@ -68,18 +69,31 @@ function extract() {
 		console.log("Unarchive complete!");
 		loading = "Extraction complete!";
 		readFiles(weaponPath);
+		writeFiles(weaponPath);
 	});
 }
 
-// Convert the dbx files to xml files
 function readFiles(objPath) {
-	working = 0;
+	reading = 0;
 	readDir(objPath, function(err, files) {
 		for (var a in files) {
 			if (files[a].endsWith("_firing.dbx") || files[a].endsWith("_Firing.dbx")) {
-				loading = "Converting " + files[a];
+				loading = "Reading " + files[a];
 				dbxConvert(files[a]);
-				working++;
+				reading++;
+			}
+		}
+	});
+}
+
+function writeFiles(objPath) {
+	writing = 0;
+	readDir(objPath, function(err, files) {
+		for (var a in files) {
+			if (files[a].endsWith("_firing.xml") || files[a].endsWith("_Firing.xml")) {
+				loading = "Writing " + files[a];
+				xmlConvert(files[a]);
+				writing++;
 			}
 		}
 	});
@@ -89,7 +103,7 @@ function dbxConvert(dbxFile) {
 	var dbxToXml = spawn(pythonPath, [dbxPath, dbxFile]);
 
 	dbxToXml.stdout.on("data", function(path) {
-		working--;
+		reading--;
 		var fs = require('fs');
 		var parseString = require('xml2js').parseString;
 		var filename = path.toString().substring(0, path.toString().length - 5) + "xml";
@@ -109,15 +123,36 @@ function dbxConvert(dbxFile) {
 
 	// Check if it's over
 	var check = setInterval(function() {
-		if (working == 0) {
+		if (reading == 0) {
 			clearInterval(check);
-			loading = "Conversion complete!";
+			loading = "Reading complete!";
 		}
 	}, 1000);
 }
 
 function xmlConvert(xmlFile) {
-	var fs = require('fs');
+	var xmlToDbx = spawn(pythonPath, [dbxPath, xmlFile]);
+
+	xmlToDbx.stdout.on("data", function(path) {
+		writing--;
+		console.log(path);
+	});
+
+	xmlToDbx.stderr.on("data", function(data) {
+		console.log("Error: " + data);
+	});
+
+	xmlToDbx.on("close", function(code) {
+		console.log(code);
+	});
+
+	// Check if it's over
+	var check = setInterval(function() {
+		if (writing == 0) {
+			clearInterval(check);
+			loading = "Writing complete!";
+		}
+	}, 1000);
 }
 
 function xmlToJson(xml, callback) {

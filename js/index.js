@@ -29,7 +29,7 @@ $(function() {
 function getStatus() {
 	$.get("/ready", function(data) {
 		$(".status").html(data);
-		if (data == "Conversion complete!") {
+		if (data == "Writing complete!") {
 			clearInterval(checkStatus);
 			window.location = "editor.html";
 		}

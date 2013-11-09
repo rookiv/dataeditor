@@ -45,7 +45,7 @@ from binascii import hexlify,unhexlify
 from cStringIO import StringIO
 from collections import OrderedDict
 
-XMLHEADER="""<?xml version="1.0"?>\r\n"""
+XMLHEADER="""<?xml version="1.0" encoding="UTF-8"?>\n"""
 
 HALVES=("SphereKeyW","SphereKeyY","SphereKeyZ","TargetId","SourceId","SphereKeyX")
 DOUBLES=("AwareForgetTime","LineOfSightTestTime","SensingTimeSpan","FireKeepTime","LostForgetTime",
@@ -319,7 +319,7 @@ def readline(line):
 def todbx(filename):
     if filename[-4:]!=".xml": return
     fi=open(filename,"rb")
-    if fi.read(23)!=XMLHEADER:
+    if fi.read(39)!=XMLHEADER:
         fi.close()
         return
     print filename
