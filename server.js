@@ -28,9 +28,9 @@ app.use("/scripts", express.static(__dirname + "/scripts"));
 
 // Server starting...
 var loading = "Initializing...";
-//extract();
+extract();
 //writeFiles(weaponPath);
-compress();
+//compress();
 
 app.get("/", function(req, res) {
 	res.render("index.html");
@@ -70,7 +70,6 @@ function extract() {
 		console.log("Unarchive complete!");
 		loading = "Extraction complete!";
 		readFiles(weaponPath);
-		writeFiles(weaponPath);
 	});
 }
 
@@ -97,6 +96,7 @@ function compress() {
 }
 
 function readFiles(objPath) {
+	console.log("Reading files...");
 	reading = 0;
 	readDir(objPath, function(err, files) {
 		for (var a in files) {
@@ -107,6 +107,16 @@ function readFiles(objPath) {
 			}
 		}
 	});
+
+	// Check if it's over
+	var check = setInterval(function() {
+		if (reading == 0) {
+			clearInterval(check);
+			loading = "Reading complete!";
+			console.log("Reading complete!");
+			writeFiles(weaponPath);
+		}
+	}, 1000);
 }
 
 function writeFiles(objPath) {
@@ -121,20 +131,33 @@ function writeFiles(objPath) {
 			}
 		}
 	});
+
+	// Check if it's over
+	var check = setInterval(function() {
+		if (writing == 0) {
+			clearInterval(check);
+			loading = "Writing complete!";
+			console.log("Writing complete!");
+			compress();
+		}
+	}, 1000);
 }
 
 function dbxConvert(dbxFile) {
 	var dbxToXml = spawn(pythonPath, [dbxPath, dbxFile]);
 
 	dbxToXml.stdout.on("data", function(path) {
-		reading--;
 		var fs = require('fs');
 		var parseString = require('xml2js').parseString;
 		var filename = path.toString().substring(0, path.toString().length - 5) + "xml";
 		fs.readFile(filename, function(err, data) {
 			xmlToJson(data, function(result) {
 				fs.writeFile(filename, result);
+				console.log(">> Write file");
 			});
+			if (err) {
+				console.log(err);
+			}
 		});
 	});
 
@@ -143,23 +166,15 @@ function dbxConvert(dbxFile) {
 	});
 
 	dbxToXml.on("close", function(code) {
+		reading--;
 	});
-
-	// Check if it's over
-	var check = setInterval(function() {
-		if (reading == 0) {
-			clearInterval(check);
-			loading = "Reading complete!";
-		}
-	}, 1000);
 }
 
 function xmlConvert(xmlFile) {
 	var xmlToDbx = spawn(pythonPath, [dbxPath, xmlFile]);
 
 	xmlToDbx.stdout.on("data", function(path) {
-		writing--;
-		console.log(path);
+		//console.log(path);
 	});
 
 	xmlToDbx.stderr.on("data", function(data) {
@@ -167,16 +182,8 @@ function xmlConvert(xmlFile) {
 	});
 
 	xmlToDbx.on("close", function(code) {
-		console.log(code);
+		writing--;
 	});
-
-	// Check if it's over
-	var check = setInterval(function() {
-		if (writing == 0) {
-			clearInterval(check);
-			loading = "Writing complete!";
-		}
-	}, 1000);
 }
 
 function xmlToJson(xml, callback) {
@@ -185,7 +192,8 @@ function xmlToJson(xml, callback) {
 	var support = require("./scripts/support.js");
 	var path = ["FiringFunctionData", "FireLogic", "Recoil", "RecoilFollowsDispersion"];
 	doc.get(objectToXpath(path, support)).text(true);
-	console.log(doc.get(objectToXpath(path, support)).text());
+	//console.log(doc.get(objectToXpath(path, support)).text());
+	console.log(">> Read file");
 	callback(doc.toString());
 }
 
