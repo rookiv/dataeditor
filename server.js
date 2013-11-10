@@ -29,7 +29,8 @@ app.use("/scripts", express.static(__dirname + "/scripts"));
 // Server starting...
 var loading = "Initializing...";
 //extract();
-readFiles(weaponPath);
+//writeFiles(weaponPath);
+compress();
 
 app.get("/", function(req, res) {
 	res.render("index.html");
@@ -73,6 +74,28 @@ function extract() {
 	});
 }
 
+function compress() {
+	console.log("Starting compressor...");
+
+	var folderPath = fbrbPath.substring(0, fbrbPath.length - 5) + " FbRB";
+	var archive = spawn(pythonPath, [archivePath, folderPath]);
+
+	loading = "Compressing mp_common fbrb archive...";
+
+	archive.stdout.on("data", function(data) {
+		console.log("Output: " + data);
+	});
+
+	archive.stderr.on("data", function(data) {
+		console.log("Error: " + data);
+	});
+
+	archive.on("close", function(code) {
+		console.log("Compression complete!");
+		loading = "Compression complete!";
+	});
+}
+
 function readFiles(objPath) {
 	reading = 0;
 	readDir(objPath, function(err, files) {
@@ -87,6 +110,7 @@ function readFiles(objPath) {
 }
 
 function writeFiles(objPath) {
+	console.log("Writing files...");
 	writing = 0;
 	readDir(objPath, function(err, files) {
 		for (var a in files) {
