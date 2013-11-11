@@ -21,6 +21,7 @@ var app = express();
 app.set("views", __dirname + "/views");
 app.engine("html", require("ejs").renderFile);
 
+app.use("/fonts", express.static(__dirname + "/fonts"));
 app.use("/css", express.static(__dirname + "/css"));
 app.use("/images", express.static(__dirname + "/images"));
 app.use("/js", express.static(__dirname + "/js"));
@@ -114,7 +115,6 @@ function readFiles(objPath) {
 			clearInterval(check);
 			loading = "Reading complete!";
 			console.log("Reading complete!");
-			writeFiles(weaponPath);
 		}
 	}, 1000);
 }
@@ -147,18 +147,18 @@ function dbxConvert(dbxFile) {
 	var dbxToXml = spawn(pythonPath, [dbxPath, dbxFile]);
 
 	dbxToXml.stdout.on("data", function(path) {
-		var fs = require('fs');
-		var parseString = require('xml2js').parseString;
-		var filename = path.toString().substring(0, path.toString().length - 5) + "xml";
-		fs.readFile(filename, function(err, data) {
-			xmlToJson(data, function(result) {
-				fs.writeFile(filename, result);
-				console.log(">> Write file");
-			});
-			if (err) {
-				console.log(err);
-			}
-		});
+		/* var fs = require('fs');
+		 var parseString = require('xml2js').parseString;
+		 var filename = path.toString().substring(0, path.toString().length - 5) + "xml";
+		 fs.readFile(filename, function(err, data) {
+		 xmlToJson(data, function(result) {
+		 fs.writeFile(filename, result);
+		 console.log(">> Write file");
+		 });
+		 if (err) {
+		 console.log(err);
+		 }
+		 }); */
 	});
 
 	dbxToXml.stderr.on("data", function(data) {

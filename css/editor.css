@@ -1,0 +1,21 @@
+html {
+	height: 100%;
+}
+
+body {
+	background-color: white;
+	height: 100%;
+}
+
+.tab-space {
+	height: 100%;
+	padding: 20px;
+}
+
+.workspace .workspace-tab-template, .workspace-pane .workspace-pane-template {
+	display: none;
+}
+
+.workspace .close-btn {
+	float: right;
+}

@@ -29,8 +29,9 @@ $(function() {
 function getStatus() {
 	$.get("/ready", function(data) {
 		$(".status").html(data);
-		if (data == "Writing complete!") {
+		if (data == "Reading complete!") {
 			clearInterval(checkStatus);
+			console.log(data);
 			window.location = "editor.html";
 		}
 	});
