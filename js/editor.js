@@ -2,36 +2,40 @@ var tabs = new Array();
 var tabMarker = -1;
 
 $(function() {
-	var firstTab = addTab({
-		data : {
-			content : "Hello"
-		}
-	});
+	read();
 
-	firstTab.addClass("active");
+	// var firstTab = addTab("Hello");
+	//
+	// firstTab.addClass("active");
+	//
+	// $("#tab0").addClass("active");
 
-	$("#tab0").addClass("active");
-
-	$(".add").click({
-		content : "Hello"
-	}, addTab);
+	$(".add").click(newTab);
 });
 
-function addTab(html) {
+function newTab() {
+	addTab("Helo");
+}
+
+function addTab(html, tabname) {
 	var newTab = $(".workspace-tab-template").clone();
 	var newPane = $(".workspace-pane-template").clone();
 	var newClose = $(".close-btn-template").clone();
 
 	tabMarker++;
 
+	if (!tabname) {
+		var tabname = "Tab " + Math.floor((Math.random() * 100000) + 1);
+	}
+
 	var linkSettings = newTab.find("a");
 	linkSettings.attr("href", "#tab" + tabMarker);
-	linkSettings.html("<span class=\"tab-name\">" + "Tab " + tabMarker + "</span>");
+	linkSettings.html("<span class=\"tab-name\">" + tabname + "</span>");
 	newPane.attr("id", "tab" + tabMarker);
-	if (!html || !html.data.content) {
+	if (!html) {
 		newPane.html(tabMarker);
 	} else {
-		newPane.html(html.data.content);
+		newPane.html(html);
 	}
 
 	// Un-template, add actual classes
@@ -53,8 +57,9 @@ function addTab(html) {
 	tabs.push(newTab);
 
 	// Make sure something is selected
-	if (!$(".workspace .active").length) {
+	if ($(".workspace .active").length == 0) {
 		$(".workspace-tab:first").addClass("active");
+		$(".workspace-pane-content:first").addClass("active");
 	}
 
 	save();
@@ -65,15 +70,16 @@ function addTab(html) {
 function closeThisTab() {
 	// Remove the tab content panel
 	$($(this).parent().attr("href")).remove();
-	// Remove tab from array
-	tabs.pop($(this).parent().parent());
-	// Remove tab from interface
-	$(this).parent().parent().remove();
+	// Remove tab from array & interface
+	var toRemove = $(this).parent().parent();
+	tabs.splice(tabs.indexOf(toRemove), 1);
+	toRemove.remove();
 	// Make sure something is selected
-	if (!$(".workspace .active").length) {
+	if ($(".workspace .active").length == 0) {
 		$(".workspace-tab:first").addClass("active");
+		$(".workspace-pane-content:first").addClass("active");
 	}
-	
+
 	save();
 }
 
@@ -84,8 +90,17 @@ function save() {
 		var tabName = this.find("a .tab-name").html();
 		saveObj[tabName] = tabContent;
 	});
-		
+
 	$.post("/save", {
 		tabs : saveObj
+	});
+}
+
+function read() {
+	$.get("/read", function(data) {
+		var saveObj = JSON.parse(data);
+		$.each(saveObj, function(index, value) {
+			addTab(value, index);
+		});
 	});
 }

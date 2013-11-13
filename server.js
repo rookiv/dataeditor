@@ -32,9 +32,9 @@ app.use(express.json());
 
 // Server starting...
 var loading = "Initializing...";
-//extract();
-//writeFiles(weaponPath);
-//compress();
+// extract();
+// writeFiles(weaponPath);
+// compress();
 testWithoutExtract();
 
 app.get("/", function(req, res) {
@@ -52,6 +52,18 @@ app.post("/save", function(req, res) {
 	var fs = require('fs');
 	var filename = "./save/tabs.xml";
 	fs.writeFile(filename, JSON.stringify(req.body.tabs));
+});
+
+app.get("/read", function(req, res) {
+	var fs = require('fs');
+	var filename = "./save/tabs.xml";
+
+	fs.readFile(filename, function(err, data) {
+		res.end(data);
+		if (err) {
+			console.log(err);
+		}
+	});
 });
 
 app.get("/index.html", function(req, res) {
