@@ -84,13 +84,20 @@ function save() {
 	$.post("/save", {
 		"tabs" : tabs
 	});
+
+	$.gritter.add({
+		title : "Saved",
+		sticky : false,
+		time : "1",
+		class_name : "gritter-success"
+	});
 }
 
 function read() {
 	$.get("/read", function(data) {
 		try {
 			var saveObj = JSON.parse(data);
-			
+
 			if (data == "undefined") {
 				addTab("Hello", "Home");
 			} else {
