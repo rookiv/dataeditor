@@ -88,13 +88,18 @@ function save() {
 
 function read() {
 	$.get("/read", function(data) {
-		if (data == "undefined") {
-			addTab("Hello", "Home");
-		} else {
+		try {
 			var saveObj = JSON.parse(data);
-			$.each(saveObj, function(index, value) {
-				addTab(value, index);
-			});
+			
+			if (data == "undefined") {
+				addTab("Hello", "Home");
+			} else {
+				$.each(saveObj, function(index, value) {
+					addTab(value, index);
+				});
+			}
+		} catch(err) {
+			addTab("Hello", "Home");
 		}
 	});
 }
