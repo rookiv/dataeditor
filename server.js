@@ -27,11 +27,15 @@ app.use("/images", express.static(__dirname + "/images"));
 app.use("/js", express.static(__dirname + "/js"));
 app.use("/scripts", express.static(__dirname + "/scripts"));
 
+app.use(express.urlencoded());
+app.use(express.json());
+
 // Server starting...
 var loading = "Initializing...";
-extract();
+//extract();
 //writeFiles(weaponPath);
 //compress();
+testWithoutExtract();
 
 app.get("/", function(req, res) {
 	res.render("index.html");
@@ -39,6 +43,15 @@ app.get("/", function(req, res) {
 
 app.get("/ready", function(req, res) {
 	res.end(loading);
+});
+
+app.post("/save", function(req, res) {
+	res.end("rcvd");
+	console.log(req.body.tabs);
+
+	var fs = require('fs');
+	var filename = "./save/tabs.xml";
+	fs.writeFile(filename, JSON.stringify(req.body.tabs));
 });
 
 app.get("/index.html", function(req, res) {
@@ -50,6 +63,10 @@ app.get("/editor.html", function(req, res) {
 });
 
 app.listen(8888);
+
+function testWithoutExtract() {
+	loading = "Task complete!";
+}
 
 // Start the unarchiver
 function extract() {
@@ -69,7 +86,7 @@ function extract() {
 
 	unarchive.on("close", function(code) {
 		console.log("Unarchive complete!");
-		loading = "Extraction complete!";
+		loading = "Read files complete!";
 		readFiles(weaponPath);
 	});
 }
@@ -92,7 +109,7 @@ function compress() {
 
 	archive.on("close", function(code) {
 		console.log("Compression complete!");
-		loading = "Compression complete!";
+		loading = "Task complete!";
 	});
 }
 
@@ -113,7 +130,7 @@ function readFiles(objPath) {
 	var check = setInterval(function() {
 		if (reading == 0) {
 			clearInterval(check);
-			loading = "Reading complete!";
+			loading = "Task complete!";
 			console.log("Reading complete!");
 		}
 	}, 1000);
@@ -136,7 +153,7 @@ function writeFiles(objPath) {
 	var check = setInterval(function() {
 		if (writing == 0) {
 			clearInterval(check);
-			loading = "Writing complete!";
+			loading = "Task complete!";
 			console.log("Writing complete!");
 			compress();
 		}

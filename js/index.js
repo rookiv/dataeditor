@@ -28,11 +28,12 @@ $(function() {
 
 function getStatus() {
 	$.get("/ready", function(data) {
-		$(".status").html(data);
-		if (data == "Reading complete!") {
+		if (data == "Task complete!") {
 			clearInterval(checkStatus);
 			console.log(data);
 			window.location = "editor.html";
+		} else {
+			$(".status").html(data);
 		}
 	});
 }

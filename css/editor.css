@@ -12,10 +12,31 @@ body {
 	padding: 20px;
 }
 
-.workspace .workspace-tab-template, .workspace-pane .workspace-pane-template {
+.workspace .workspace-tab-template, .workspace-pane .workspace-pane-template, .workspace .close-btn-template {
 	display: none;
 }
 
+.workspace .workspace-tab, .add {
+	margin-top: 12px;
+}
+
+.workspace.padding-12 {
+	padding-top: 0px;
+}
+
 .workspace .close-btn {
-	float: right;
+	margin-left: 4px;
+	padding-left: 8px;
+	padding-top: 6px;
+	padding-bottom: 6px;
+	padding-right: 8px;
+	margin-right: 4px;
+	opacity: 0.4;
+}
+
+.workspace .close-btn:hover {
+	opacity: 1.0;
+}
+.workspace .workspace-tab > a {
+	padding-right: 0px;
 }
