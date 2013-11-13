@@ -8,7 +8,7 @@ $(function() {
 });
 
 function newTab() {
-	bootbox.prompt("What is your name?", function(result) {
+	bootbox.prompt("Enter name of the new tab:", function(result) {
 		if (result != undefined && result.trim() != "") {
 			addTab("Helllo", result);
 		}
