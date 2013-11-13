@@ -1,4 +1,4 @@
-var tabs = new Array();
+var tabs = {};
 var tabMarker = -1;
 
 $(function() {
@@ -9,7 +9,7 @@ $(function() {
 
 function newTab() {
 	bootbox.prompt("Enter name of the new tab:", function(result) {
-		if (result != undefined && result.trim() != "") {
+		if (result != undefined && result.trim() != "" && tabs[result] == undefined) {
 			addTab("Helllo", result);
 		}
 	});
@@ -52,7 +52,7 @@ function addTab(html, tabname) {
 	$(".workspace").append(newTab);
 	$(".workspace").append($(".add"));
 	$(".workspace-pane").append(newPane);
-	tabs.push(newTab);
+	tabs[tabname] = newPane.html();
 
 	// Make sure something is selected
 	if ($(".workspace .active").length == 0) {
@@ -69,11 +69,8 @@ function closeThisTab() {
 	// Remove the tab content panel
 	$($(this).parent().attr("href")).remove();
 	// Remove tab from array & interface
-	var toRemove = $(this).parent().parent();
-	tabs = jQuery.grep(tabs, function(value) {
-		return value != toRemove;
-	});
-	toRemove.remove();
+	delete tabs[$(this).parent().find(".tab-name").html()];
+	$(this).parent().parent().remove();
 	// Make sure something is selected
 	if ($(".workspace .active").length == 0) {
 		$(".workspace-tab:first").addClass("active");
@@ -84,15 +81,8 @@ function closeThisTab() {
 }
 
 function save() {
-	var saveObj = {};
-	$(tabs).each(function() {
-		var tabContent = $(this.find("a").attr("href")).html();
-		var tabName = this.find("a .tab-name").html();
-		saveObj[tabName] = tabContent;
-	});
-
 	$.post("/save", {
-		tabs : saveObj
+		"tabs" : tabs
 	});
 }
 
