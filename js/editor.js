@@ -4,17 +4,15 @@ var tabMarker = -1;
 $(function() {
 	read();
 
-	// var firstTab = addTab("Hello");
-	//
-	// firstTab.addClass("active");
-	//
-	// $("#tab0").addClass("active");
-
 	$(".add").click(newTab);
 });
 
 function newTab() {
-	addTab("Helo");
+	bootbox.prompt("What is your name?", function(result) {
+		if (result != undefined && result.trim() != "") {
+			addTab("Helllo", result);
+		}
+	});
 }
 
 function addTab(html, tabname) {
@@ -25,7 +23,7 @@ function addTab(html, tabname) {
 	tabMarker++;
 
 	if (!tabname) {
-		var tabname = "Tab " + Math.floor((Math.random() * 100000) + 1);
+		var tabname = "Tab " + tabMarker;
 	}
 
 	var linkSettings = newTab.find("a");
@@ -72,7 +70,9 @@ function closeThisTab() {
 	$($(this).parent().attr("href")).remove();
 	// Remove tab from array & interface
 	var toRemove = $(this).parent().parent();
-	tabs.splice(tabs.indexOf(toRemove), 1);
+	tabs = jQuery.grep(tabs, function(value) {
+		return value != toRemove;
+	});
 	toRemove.remove();
 	// Make sure something is selected
 	if ($(".workspace .active").length == 0) {
@@ -98,9 +98,13 @@ function save() {
 
 function read() {
 	$.get("/read", function(data) {
-		var saveObj = JSON.parse(data);
-		$.each(saveObj, function(index, value) {
-			addTab(value, index);
-		});
+		if (data == "undefined") {
+			addTab("Hello", "Home");
+		} else {
+			var saveObj = JSON.parse(data);
+			$.each(saveObj, function(index, value) {
+				addTab(value, index);
+			});
+		}
 	});
 }

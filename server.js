@@ -59,9 +59,10 @@ app.get("/read", function(req, res) {
 	var filename = "./save/tabs.xml";
 
 	fs.readFile(filename, function(err, data) {
-		res.end(data);
 		if (err) {
-			console.log(err);
+			res.end("undefined");
+		} else {
+			res.end(data);
 		}
 	});
 });
