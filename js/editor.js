@@ -85,12 +85,15 @@ function save() {
 		"tabs" : tabs
 	});
 
+	/*
 	$.gritter.add({
 		title : "Saved",
+		text : "Your tabs have been saved!",
 		sticky : false,
-		time : "1",
+		time : "",
 		class_name : "gritter-success"
 	});
+	*/
 }
 
 function read() {
