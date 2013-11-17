@@ -40,3 +40,8 @@ body {
 .workspace .workspace-tab > a {
 	padding-right: 0px;
 }
+
+.btn > [class*="fa-"] {
+	display: inline;
+	margin-right: 1em;
+}

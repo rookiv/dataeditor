@@ -10,7 +10,7 @@ $(function() {
 function newTab() {
 	bootbox.prompt("Enter name of the new tab:", function(result) {
 		if (result != undefined && result.trim() != "" && tabs[result] == undefined) {
-			addTab("Helllo", result);
+			addTab(null, result);
 		}
 	});
 }
@@ -22,17 +22,11 @@ function addTab(html, tabname) {
 
 	tabMarker++;
 
-	if (!tabname) {
-		var tabname = "Tab " + tabMarker;
-	}
-
 	var linkSettings = newTab.find("a");
 	linkSettings.attr("href", "#tab" + tabMarker);
 	linkSettings.html("<span class=\"tab-name\">" + tabname + "</span>");
 	newPane.attr("id", "tab" + tabMarker);
-	if (!html) {
-		newPane.html(tabMarker);
-	} else {
+	if (html) {
 		newPane.html(html);
 	}
 
@@ -60,9 +54,15 @@ function addTab(html, tabname) {
 		$(".workspace-pane-content:first").addClass("active");
 	}
 
-	save();
+	// Add event handlers for things in tab
+	tabHandler();
 
+	save();
 	return newTab;
+}
+
+function tabHandler() {
+	$(".tab-start").click(getStarted);
 }
 
 function closeThisTab() {
@@ -84,16 +84,6 @@ function save() {
 	$.post("/save", {
 		"tabs" : tabs
 	});
-
-	/*
-	$.gritter.add({
-		title : "Saved",
-		text : "Your tabs have been saved!",
-		sticky : false,
-		time : "",
-		class_name : "gritter-success"
-	});
-	*/
 }
 
 function read() {
@@ -102,14 +92,19 @@ function read() {
 			var saveObj = JSON.parse(data);
 
 			if (data == "undefined") {
-				addTab("Hello", "Home");
+				addTab(null, "Home");
 			} else {
 				$.each(saveObj, function(index, value) {
 					addTab(value, index);
 				});
 			}
 		} catch(err) {
-			addTab("Hello", "Home");
+			addTab(null, "Home");
 		}
 	});
+}
+
+function getStarted() {
+	var content = $(this.parentElement);
+
 }
