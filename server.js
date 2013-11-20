@@ -10,6 +10,9 @@ var archivePath = __dirname + "/scripts/archive.py";
 var objectsPath = __dirname + "/../dist/linux/levels/mp_common/level-00 FbRB";
 var weaponPath = objectsPath + "/Objects/Weapons/Handheld";
 
+// Hold major important categories
+var listOfWeapons = [];
+
 // working holder
 var reading = 0;
 var writing = 0;
@@ -32,10 +35,10 @@ app.use(express.json());
 
 // Server starting...
 var loading = "Initializing...";
-// extract();
+extract();
 // writeFiles(weaponPath);
 // compress();
-testWithoutExtract();
+// testWithoutExtract();
 
 app.get("/", function(req, res) {
 	res.render("index.html");
@@ -64,6 +67,12 @@ app.get("/read", function(req, res) {
 		} else {
 			res.end(data);
 		}
+	});
+});
+
+app.get("/getAllWeapons", function(req, res) {
+	readFiles(weaponPath, false, function() {
+		res.end(JSON.stringify(listOfWeapons));
 	});
 });
 
@@ -99,8 +108,8 @@ function extract() {
 
 	unarchive.on("close", function(code) {
 		console.log("Unarchive complete!");
-		loading = "Read files complete!";
-		readFiles(weaponPath);
+		loading = "Task complete!";
+		//readFiles(weaponPath);
 	});
 }
 
@@ -126,16 +135,26 @@ function compress() {
 	});
 }
 
-function readFiles(objPath) {
+function readFiles(objPath, convert, callback) {
 	console.log("Reading files...");
 	reading = 0;
 	readDir(objPath, function(err, files) {
 		for (var a in files) {
 			if (files[a].endsWith("_firing.dbx") || files[a].endsWith("_Firing.dbx")) {
 				loading = "Reading " + files[a];
-				dbxConvert(files[a]);
+				if (convert) {
+					dbxConvert(files[a]);
+				}
+				
+				var path = require("path");
+				listOfWeapons.push(path.basename(files[a].toUpperCase().replace("_FIRING.DBX", "")));
+				
 				reading++;
 			}
+		}
+		if (!convert) {
+			callback();
+			return;
 		}
 	});
 
@@ -145,6 +164,7 @@ function readFiles(objPath) {
 			clearInterval(check);
 			loading = "Task complete!";
 			console.log("Reading complete!");
+			callback();
 		}
 	}, 1000);
 }

@@ -55,14 +55,14 @@ function addTab(html, tabname) {
 	}
 
 	// Add event handlers for things in tab
-	tabHandler();
+	tabHandler(newPane);
 
 	save();
 	return newTab;
 }
 
-function tabHandler() {
-	$(".tab-start").click(getStarted);
+function tabHandler(context) {
+	$(context).find(".tab-start").click(getStarted);
 }
 
 function closeThisTab() {
@@ -106,5 +106,8 @@ function read() {
 
 function getStarted() {
 	var content = $(this.parentElement);
-
+	$.get("/getAllWeapons", function(data) {
+		alert(data);
+	});
+	content.html("Converting weapons package...");
 }

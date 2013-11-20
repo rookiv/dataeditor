@@ -12,6 +12,10 @@ body {
 	padding: 20px;
 }
 
+.tab-content {
+	height: 90%;
+}
+
 .workspace .workspace-tab-template, .workspace-pane .workspace-pane-template, .workspace .close-btn-template {
 	display: none;
 }
